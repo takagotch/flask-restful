@@ -2,6 +2,8 @@
 ---
 https://github.com/flask-restful/flask-restful
 
+https://flask-restful.readthedocs.io/en/latest/
+
 ```py
 from flask import Flask
 from flask_restful import reqparse, abort, Api, Resource
@@ -56,7 +58,29 @@ if __name__ == '__main__':
   app.run(debug=True)
 ```
 
-```
+```py
+from flask_restful import Resource, fields, marshal_with
+
+resource_fields = {
+  'name': fields.String,
+  'address': fields.String,
+  'date_updated': fields.DateTime(dt_format='rfc822').
+}
+
+class Todo(Resource):
+  @marshal_with(resource_fields, envelop='resource')
+  def get(self, **kwargs):
+    return db_get_todo()
+
+class RandomNuber(fields.Raw):
+  def output(self,key, obj):
+    return random.random()
+    
+fields = {
+  'name': fileds.Stirng,
+  'uri': fields.Url('todo_resource'),
+  'random': RandomNumber,
+}
 ```
 
 ```
