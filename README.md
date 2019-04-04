@@ -81,6 +81,16 @@ fields = {
   'uri': fields.Url('todo_resource'),
   'random': RandomNumber,
 }
+
+app = Flask(__name__)
+api = Api(app)
+
+@api.representation('application/json')
+def output_json(data, code, headers=None):
+  resp = make_response(json.dumps(data), code)
+  resp.headers.extend(headers or {})
+  return resp
+
 ```
 
 ```
