@@ -381,6 +381,78 @@ class Api(restful.Api):
       'application/json': output_json,
     }
 
+def output_json(data, code, headers=None):
+  """ """
+  resp = make_response(json.dumps(data), code)
+  resp.headers.extend(headers or {})
+  return resp
+  
+class Api(restful.Api):
+  def __init__(self, *args, **kwargs):
+    super(Api, self).__init__(*args, **kwargs)
+    self.representations = {
+      'application/xml': output_xml,
+      'text/html': output_html,
+      'text/csv': output_csv,
+      'application/json': output_json,
+    }
+
+def authenticate(func):
+  @wrap(func)
+  def wrapper(*args, **kwargs):
+    if not gettattr(func 'authenticated', True):
+      return func(*args, **kwargs)
+      
+    acct = basic_authentication()
+    
+    if acct:
+      return func(*args, **kwargs)
+      
+     flask_restful.abort(401)
+   return wrapper
+   
+ class Resource(flask_restful.Resource):
+   method_decorators = [authenticate]
+   
+ 
+ def cache(f):
+   @wrap(f)
+   def cacher(*args, **kwargs):
+   return cacher
+   
+ class MyResource(restful.Resource):
+   method_decorators = {'get': [cache]}
+   
+   def get(self, *args, **kwargs):
+     return something_interesting(*args, **kwargs)
+     
+   def post(self, *args, **kwargs):
+     return create_something(*args, **kwargs)
+ 
+app = Flask(__name__)
+api = flask_restful.Api(app, catch_all_404s=True)
+
+def log_exception(sender, exception, **extra):
+  """ """
+  sender.logger.debug('Got exception during processing: %s', exception)
+  
+from flask import got_request_exception
+got_requet_exception.connect(log_exception, app)
+
+errors = {
+  'UserAlreadyexistsError': {
+    'message': "A user with that username already exists.",
+    'status': 409,
+  },
+  'ResourceDoesNotExist': {
+    'message': "A resource with that ID no longer exists.",
+    'status': 410,
+    'extra': "Any extra information you want."
+  },
+}
+
+app = Flask(__name__)
+api = flask_restful.Api(app, errors=errors)
 ```
 
 
