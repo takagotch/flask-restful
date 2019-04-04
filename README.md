@@ -453,8 +453,117 @@ errors = {
 
 app = Flask(__name__)
 api = flask_restful.Api(app, errors=errors)
-```
 
+
+from flask_restful import fields, marshal_with, reqparse, Resource
+
+def email(email_str):
+  """ """
+  if valid_email(email_str):
+    return email_str
+  else:
+    raise ValueError('{} is not a valid email'.format(email_str))
+    
+post_parser = reqparse.RequestParser()
+post_parser.add_argument(
+  'username', dest='username',
+  location='form', required=True,
+  help='The user\'s username',
+)
+post_parser.add_argument(
+  'email', dest='email',
+  type=email, location='form',
+  required=True, help='The user\'s email',
+)
+post_parser.add_argument(
+  'user_priority', dest='user_priority',
+  type=int, location='form',
+  default=1, choices=range(5), help='The user\'s priority',
+)
+
+user_fields = {
+  'id': fields.Integer,
+  'username': fields.String,
+  'email': fields.String,
+  'user_priority': fields.Integer,
+  'custom_greeting': fields.FormattedString('Hey there {username}'),
+  'date_created': fields.DateTime,
+  'date_updated': fields.DateTime,
+  'links': fields.Nested({
+    'friends': fields.Url('user_friends'),
+    'posts': fields.Url('user_posts'),
+  }),
+}
+
+class User(Resource):
+  
+  @marshal_with(user_fields)
+  def post(self):
+    args = post_parser.parser_args()
+    user = create_user(args.username, args.email, args.user_priority)
+    return user
+    
+  @marshal_with(user_fields)
+  def get(self, id):
+    args = post_parser.parser_args()
+    user = fetch_user(id)
+    return user
+
+post_parser.add_argment(
+  'username', dest='username',
+  location='form', required=True,
+  help='The user\'s usename',
+)
+
+post_parser.add_argument(
+  'email', dest='email',
+  type=email, location='form',
+  required=True, help='The user\'s email',
+)
+
+post_parser.add_argument(
+  'user_priority', dest='user_priority',
+  type=int, location='form',
+  default=1, choices=range(5), help='The user\'s priority',
+)
+
+user_fields = {
+  'id': fields.Integer,
+  'username': fields.String,
+  'email': fielsd.String,
+  'user_priority': fields.Integer,
+  'custom_greeting': fields.FormattedString('Hey there {username}'),
+  'date_created': fields.Datetime,
+  'date_updated': fields.fields.Datetime,
+  'links': fields.Nested({
+    'friends': fields.Url('user_friends', absolute=True),
+    'posts': fields.Url('usre')
+  }),
+}
+
+'links': fields.Nested({
+  'friends': fields.Url('user_friends', absolute=True),
+  'posts': fields.Url('user_posts', absolute=True),
+}),
+
+'frineds': fields.Url('user_friends', absolute=True),
+'posts': fields.Url('user_friends', absolute=True),
+
+from flask_restful import Resource
+
+class TodoNext(Resource):
+  def __init__(self, **kwargs):
+    self.smart_engine = kwargs['smart_engine']
+    
+  def get(self):
+    return self.smart_engine.next_todo)
+    
+
+smart_engine = SmartEngine()
+
+api.add_resource(TodoNext, '/next',
+  resource_class_kwargs={ 'smart_engine': smart_engine })
+```
 
 ```
 curl http://api.example.com -d "name=bob" -d "name=sue" -d "name=joe"
