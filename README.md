@@ -312,6 +312,75 @@ args = parser.parse_args()
 
 parser.add_argument('name', required=True, help="Name cannot be blank!")
 
+
+app = Flask(__name__)
+api = Api(app)
+
+@api.representation('application/json')
+def output_json(data, code, headers=None):
+  resp = make_response(json.dumps(data), code)
+  resp.headers.extend(headers or {})
+  return resp
+
+class MyConfig(object):
+  RESTFUL_JSON = {'separators': (', ', ': '),
+    'indent': 2,
+    'cls': MyCustomEncoder}
+    
+class AllCapsString(fields.Raw):
+  def format(self, value):
+    return value.upper()
+    
+fields = {
+  'name': fields.String,
+  'all_caps_name': AllCapsStirng(attribute=name),
+}
+
+def odd_number(value):
+  if value % 2 == 0:
+    raise ValueError("Value is not odd")
+    
+  return value
+  
+
+def odd_number(value, name):
+  if value % 2 == 0:
+    raise ValueError("The parameter '{}' is not odd. You gave us the value: {}".format(name, value))
+    
+
+def task_status(value):
+  statuses = [u"init", u"in-progress", u"completed"]
+  return statuses.index(value)
+  
+parser = reqparse.RequestParser()
+parser.add_argument('OddNumber', type=odd_number)
+parser.add_argument('Status', type=task_status)
+args = parser.parse_args()
+
+api = Api(app)
+
+@api.representation('text/csv')
+def output_csv(data, code, headers=None):
+  pass
+
+
+def output_json(data, code, headers=None):
+  """ """
+  resp = make_response(json.dumps(data), code)
+  resp.headers.extend(headers or {})
+  return resp
+
+
+class Api(restful.Api):
+  def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    self.representations = {
+      'application/xml': output_xml,
+      'text/html': output_html,
+      'text/csv': output_csv,
+      'application/json': output_json,
+    }
+
 ```
 
 
